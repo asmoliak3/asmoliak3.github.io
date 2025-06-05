@@ -20,29 +20,31 @@
   </script>
 
   <script type="text/javascript">
-    // Глобальный массив Pushwoosh (если он ещё не существует)
+    // Создаём (или дополняем) глобальный объект Pushwoosh
     var Pushwoosh = Pushwoosh || [];
 
-    // === 1. Инициализация SDK ===
-    // Не передаём userId, чтобы не было автоматического вызова registerUser
+    // === 1. Инициализация Pushwoosh SDK ===
+    // Обратите внимание: тут НЕТ параметра userId (чтобы не вызывался registerUser автоматически)
     Pushwoosh.push(['init', {
-      logLevel: 'error',                           // Можно 'info' для отладки
-      applicationCode: '9627A-C956D',              // Вставьте ваш Application Code
-      apiToken: 'tYgEudA4O0Dgs81J6EkY1MF8vQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDaf24vLAOWNvHkh4G0qd5',
+      logLevel: 'error',                           // 'info' для отладки, 'error' для продакшна
+      applicationCode: '9627A-C956D',              // ← замените на свой Application Code
+      apiToken: 'tYgEudA4O0Dgs81J6EkY1MF8vQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDaf24vLAOWNvHkh4G0qd5', // ← ваш Device API Token
       serviceWorkerUrl: '/pushwoosh-service-worker.js',
-      safariWebsitePushID: '',                     // Оставьте пустым, если Safari не используете
+      safariWebsitePushID: '',                     // Оставьте пустым, если Safari Web Push не используете
       defaultNotificationTitle: 'Pushwoosh Demo',
       defaultNotificationImage: 'https://yoursite.com/img/logo-medium.png',
-      autoSubscribe: false,                        // НЕ показывать виджет подписки сразу
+      autoSubscribe: false,                        // false — не показывать виджет подписки сразу
       subscribeWidget: { enable: false },
-      // userId: 'user_id_example',                 // УБРАЛИ!!! (чтобы не было 401 Unauthorized)
+      // <-- userId тут не нужен! Если он будет, SDK попробует вызвать registerUser и вернёт 401.
       tags: { 'DemoTag': 'DemoValue' }
     }]);
 
-    // === 2. Вешаем обработчик на кнопку, чтобы вызвать registerDevice ===
-    document.getElementById('pw-subscribe-btn').addEventListener('click', function() {
-      Pushwoosh.push(['registerDevice']);
-    });
+    // === 2. Назначаем клик по кнопке, чтобы вызвать registerDevice() ===
+    document
+      .getElementById('pw-subscribe-btn')
+      .addEventListener('click', function() {
+        Pushwoosh.push(['registerDevice']);
+      });
   </script>
 </body>
 </html>
