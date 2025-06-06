@@ -1,26 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <title>Pushwoosh Web Push Demo</title>
 
-  <!-- 1) Подключаем Pushwoosh Web SDK асинхронно -->
+  <!-- 1) Подключаем Pushwoosh Web SDK -->
   <script async src="//cdn.pushwoosh.com/webpush/v3/pushwoosh-web-notifications.js"></script>
 
   <script>
-    // 2) Инициализация Pushwoosh Web SDK (заменить apiToken на ваш настоящий)
+    // 2) Инициализируем SDK без любых Inbox-настроек
     var Pushwoosh = Pushwoosh || [];
     Pushwoosh.push(['init', {
-      logLevel: 'info',                            
-      applicationCode: '9627A-C956D',              // ваш Application Code
-      apiToken:        'YOtYgEuAX00Dgs81J6EkY1MFBvQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDAf24vLAOWNvHkH4GQqd5',
-      safariWebsitePushID: '',                     // если не настраивали Safari Push ID, оставляем пустым
-      defaultNotificationTitle: 'Pushwoosh Demo',  // заголовок пушей по умолчанию
-      defaultNotificationImage: 'https://asmoliak3.github.io/img/logo.png', // URL изображения для пушей
-      autoSubscribe:   false,                      
-      subscribeWidget: {
-        enable: true                               
-      }
+      // Режим логирования (можно 'info', 'debug' или 'error')
+      logLevel: 'info',
+
+      // Ваш Application Code, полученный в Pushwoosh Control Panel → Settings → General → Application Code
+      applicationCode: '9627A-C956D',
+
+      // Ваш Device API Token, полученный в Pushwoosh Control Panel → Settings → API Access → Web Push
+      apiToken: 'YOtYgEuAX00Dgs81J6EkY1MFBvQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDAf24vLAOWNvHkH4GQqd5',
+
+      // Safari Website Push ID не заполняем (оставляем пустым),
+      // чтобы не требовать P12-ключ для старых версий Safari.
+      safariWebsitePushID: '',
+
+      // Заголовок пушей по умолчанию (необязательно, но приятно видеть в тестовом пуше)
+      defaultNotificationTitle: 'Pushwoosh Demo',
+
+      // Изображение в пуше (можно любой доступный URL, либо убрать полностью, если не нужно)
+      defaultNotificationImage: '',
+
+      // Отложенная подписка: пользователь подпишется только после клика на кнопку "Подписаться"
+      autoSubscribe: false,
+
+      // Включаем виджет подписки (чтобы при инициализации SDK не пытаться работать с Inbox)
+      subscribeWidget: { enable: true }
+
+      // Обратите внимание: параметр inboxWidget или tags здесь не указываем! 
+      // Это убирает все запросы к getInboxMessages и unregisterDevice при старте.
     }]);
   </script>
 </head>
@@ -30,17 +47,19 @@
   <!-- 3) Кнопка для ручной подписки -->
   <button id="subscribe-btn">Подписаться на уведомления</button>
 
+  <!-- 4) Обработчик клика вызывает native-dialog и регистрирует устройство в Pushwoosh -->
   <script>
-    // 4) При клике на кнопку вызываем метод subscribe()
     document.getElementById('subscribe-btn').addEventListener('click', function() {
       Pushwoosh.push(['subscribe']);
     });
   </script>
 
-  <!-- 5) Регистрируем service worker для Pushwoosh -->
+  <!-- 5) Регистрируем Service Worker из файла pushwoosh-service-worker.js -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
+        // Обратите внимание: путь «/pushwoosh-service-worker.js» означает, что файл
+        // должен лежать именно в корне (same-folder) вашего GitHub Pages.
         navigator.serviceWorker.register('/pushwoosh-service-worker.js')
           .then(function(reg) {
             console.log('Service worker зарегистрирован:', reg);
