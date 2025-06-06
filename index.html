@@ -4,61 +4,41 @@
   <meta charset="UTF-8" />
   <title>Pushwoosh Web Push Demo</title>
 
-  <!-- 1) Подключаем Web Push SDK из CDN -->
   <script async src="//cdn.pushwoosh.com/webpush/v3/pushwoosh-web-notifications.js"></script>
 
   <script>
-    // 2) Инициализируем Pushwoosh Web SDK (минимальный набор параметров).
-    //    Ниже именно то, что нужно: applicationCode, apiToken и отключение inbox.
     var Pushwoosh = Pushwoosh || [];
     Pushwoosh.push(['init', {
-      // Ваш Application Code (Control Panel → Settings → General)
+      logLevel: 'info',
       applicationCode: '9627A-C956D',
-
-      // Ваш Device API Token (Control Panel → Settings → API Access → Web Push)
       apiToken: 'tYgEudA4O0Dgs81J6EkY1MF8vQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDaf24vLAOWNvHkh4G0qd5',
+      safariWebsitePushID: 'web.com.example.domain',
+      defaultNotificationTitle: 'Pushwoosh Demo',
+      defaultNotificationImage: 'https://asmoliak3.github.io/img/logo-medium.png',
+      autoSubscribe: true,
+      subscribeWidget: { enable: false },
+      userId: '',
+      tags: {}
+    }]);
 
-      // Мы отключаем автоматическую подписку, чтобы пуш запрашивался только по нажатию кнопки
-      autoSubscribe: false,
+    Pushwoosh.push(['onLoad', function(api) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/pushwoosh-service-worker.js')
+          .then(function(reg) {
+            console.log('Service worker для Pushwoosh зарегистрирован:', reg);
+          })
+          .catch(function(err) {
+            console.error('Не удалось зарегистрировать service worker:', err);
+          });
+      }
 
-      // Не указываем safariWebsitePushID (иначе потребовал бы .p12-ключ и пароль)
-      safariWebsitePushID: '',
-
-      // Отключаем Inbox (иначе SDK будет пытаться выполнять getInboxMessages → 401)
-      inboxWidget: { enable: false }
+      api.onReady(function() {
+        console.log('Pushwoosh Web SDK инициализирован');
+      });
     }]);
   </script>
 </head>
 <body>
   <h1>Pushwoosh Web Push Demo</h1>
-
-  <!-- 3) Простая кнопка для ручного запроса разрешения на пуши -->
-  <button id="subscribe-btn"
-          style="font-size: 16px; padding: 6px 12px; cursor: pointer;">
-    Подписаться на уведомления
-  </button>
-
-  <script>
-    // 4) Слушаем клик по кнопке и вызываем именно Pushwoosh.subscribe()
-    document.getElementById('subscribe-btn').addEventListener('click', function() {
-      // Вместо "Pushwoosh.push(['subscribe'])" используем "Pushwoosh.subscribe()"
-      Pushwoosh.subscribe();
-    });
-  </script>
-
-  <!-- 5) Регистрируем сервис-воркер из файла pushwoosh-service-worker.js в корне сайта -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/pushwoosh-service-worker.js')
-          .then(function(reg) {
-            console.log('Service worker зарегистрирован:', reg);
-          })
-          .catch(function(err) {
-            console.error('Не удалось зарегистрировать service worker:', err);
-          });
-      });
-    }
-  </script>
 </body>
 </html>
