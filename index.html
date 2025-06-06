@@ -1,50 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Pushwoosh Web Push Demo</title>
+
+  <script async src="//cdn.pushwoosh.com/webpush/v3/pushwoosh-web-notifications.js"></script>
+
+  <script>
+    var Pushwoosh = Pushwoosh || [];
+    Pushwoosh.push(['init', {
+      logLevel: 'info',                           
+      applicationCode: '9627A-C956D',             
+      apiToken: 'YOtYgEuAX00Dgs81J6EkY1MFBvQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDAf24vLAOWNvHkH4GQqd5',                 
+      safariWebsitePushID: 'https://asmoliak3.github.io', 
+      autoSubscribe: false,                       
+      subscribeWidget: {
+        enable: true                               
+      }
+    }]);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/pushwoosh-service-worker.js')
+          .then(function(reg) {
+            console.log('Service worker for Pushwoosh зарегистрирован:', reg);
+          })
+          .catch(function(err) {
+            console.error('Не удалось зарегистрировать service worker:', err);
+          });
+      });
+    }
+  </script>
 </head>
 <body>
   <h1>Pushwoosh Web Push Demo</h1>
 
-  <!-- Кнопка, по которой пользователь вручную подписывается на пуш-уведомления -->
-  <button id="pw-subscribe-btn">Подписаться на уведомления</button>
+  <button id="subscribe-btn">Подписаться на уведомления</button>
 
-  <!-- Подключаем Pushwoosh Web SDK -->
-  <script 
-    type="text/javascript" 
-    src="//cdn.pushwoosh.com/webpush/v3/pushwoosh-web-notifications.js" 
-    async>
-  </script>
-
-  <script type="text/javascript">
-    // Создаём (или дополняем) глобальный объект Pushwoosh
-    var Pushwoosh = Pushwoosh || [];
-
-    // === 1. Инициализация Pushwoosh SDK ===
-    // Обратите внимание: тут НЕТ параметра userId (чтобы не вызывался registerUser автоматически)
-    Pushwoosh.push(['init', {
-      logLevel: 'error',                           // 'info' для отладки, 'error' для продакшна
-      applicationCode: '9627A-C956D',              // ← замените на свой Application Code
-      apiToken: 'tYgEudA4O0Dgs81J6EkY1MF8vQnHOGb2GzRy6MjNaaBHuILH2fdqrE7UcnmICvYDaf24vLAOWNvHkh4G0qd5', // ← ваш Device API Token
-      serviceWorkerUrl: '/pushwoosh-service-worker.js',
-      safariWebsitePushID: '',                     // Оставьте пустым, если Safari Web Push не используете
-      defaultNotificationTitle: 'Pushwoosh Demo',
-      defaultNotificationImage: 'https://yoursite.com/img/logo-medium.png',
-      autoSubscribe: false,                        // false — не показывать виджет подписки сразу
-      subscribeWidget: { enable: false },
-      // <-- userId тут не нужен! Если он будет, SDK попробует вызвать registerUser и вернёт 401.
-      tags: { 'DemoTag': 'DemoValue' }
-    }]);
-
-    // === 2. Назначаем клик по кнопке, чтобы вызвать registerDevice() ===
-    document
-      .getElementById('pw-subscribe-btn')
-      .addEventListener('click', function() {
-        Pushwoosh.push(['registerDevice']);
-      });
+  <script>
+    document.getElementById('subscribe-btn').addEventListener('click', function() {
+      Pushwoosh.push(['subscribe']);
+    });
   </script>
 </body>
 </html>
